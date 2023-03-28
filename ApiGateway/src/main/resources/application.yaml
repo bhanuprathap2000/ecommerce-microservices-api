@@ -1,0 +1,52 @@
+server:
+  port : 9090
+
+spring:
+  application:
+    name: API-GATEWAY
+
+  cloud:
+    gateway:
+      routes:
+        - id: ORDER-SERVICE
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ORDER-SERVICE
+                fallbackuri: forward:/order-service-fallback
+        - id: PRODUCT-SERVICE
+            uri: lb://PRODUCT-SERVICE
+            predicates:
+              - Path=/product/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: PRODUCT-SERVICE
+                  fallbackuri: forward:/product-service-fallback
+        - id: PAYMENT-SERVICE
+            uri: lb://PAYMENT-SERVICE
+            predicates:
+              - Path=/payment/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: PAYMENT-SERVICE
+                  fallbackuri: forward:/payment-service-fallback
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: ${EUREKA_SERVER_ADDRESS:http://localhost:8761/eureka}
+
+
+
+
